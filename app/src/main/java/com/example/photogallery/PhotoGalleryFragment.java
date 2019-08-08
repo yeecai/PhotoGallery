@@ -14,13 +14,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.photogallery.dummy.DummyContent;
-import com.example.photogallery.dummy.DummyContent.DummyItem;
+import com.example.photogallery.Model.GallleryItem;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.ButterKnife;
 
 /**
  * A fragment representing a list of Items.
@@ -37,6 +35,12 @@ public class PhotoGalleryFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
 
     private static final String TAG = "PhotoGalleryFragment";
+
+    private List<GallleryItem.GalleryItem> mItems = new ArrayList<>();
+
+    RecyclerView recyclerView;
+    View view;
+    private PhotoGalleryFragmentRecyclerViewAdapter mAdapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -71,18 +75,21 @@ public class PhotoGalleryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_photo_gallery, container, false);
+
+        view = inflater.inflate(R.layout.fragment_photo_gallery, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+
+            recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new PhotoGalleryFragmentRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            mAdapter = new PhotoGalleryFragmentRecyclerViewAdapter(GallleryItem.ITEMS, mListener);
+            recyclerView.setAdapter(mAdapter);
         }
         return view;
     }
@@ -91,25 +98,33 @@ public class PhotoGalleryFragment extends Fragment {
 
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(GallleryItem item);
     }
 
 
-    private class FetchItemsTask extends AsyncTask<Void,Void,Void> {
+    private class FetchItemsTask extends AsyncTask<Void,Void,List<GallleryItem.GalleryItem>> {
         @Override
-        protected Void doInBackground(Void... voids) {
-            try {
+        protected List<GallleryItem.GalleryItem> doInBackground(Void... voids) {
+            /*try {
                 String result = new FlickrFetchr()
-                        .getUrlString("https://www.bignerdranch.com");
-                    // .getUrlString("http://http://120.78.214.127/");
+                        //.getUrlString("https://www.bignerdranch.com");
+                     .getUrlString("http://120.78.214.127/");
                    //.getUrlString("https://www.google.com");
                 Log.i(TAG, "Fetched contents of url"+result);
             } catch (IOException e) {
                 //e.printStackTrace();
                 Log.e(TAG, "Failed to fetch url:", e);
-            }
+            }*/
 
-            return null;
+            return new FlickrFetchr().fetchItems();
+        }
+
+        @Override
+        protected void onPostExecute(List<GallleryItem.GalleryItem> items) {
+            mItems = items;
+          //  mAdapter.updateData(items);
+            mAdapter = new PhotoGalleryFragmentRecyclerViewAdapter(mItems, mListener);
+            recyclerView.setAdapter(mAdapter);
         }
     }
 
