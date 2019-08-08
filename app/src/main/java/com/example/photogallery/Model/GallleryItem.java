@@ -25,21 +25,21 @@ public class GallleryItem {
 
     private static final int COUNT = 25;
 
-    static {
+  /*  static {
         // Add some sample items.
         for (int i = 1; i <= COUNT; i++) {
             addItem(createGalleryItem(i));
         }
-    }
+    }*/
 
     private static void addItem(GalleryItem item) {
         ITEMS.add(item);
         ITEM_MAP.put(item.mId, item);
     }
 
-    private static GalleryItem createGalleryItem(int position) {
+   /* private static GalleryItem createGalleryItem(int position) {
         return new GalleryItem(String.valueOf(position), "Item " + position, makeDetails(position));
-    }
+    }*/
 
     private static String makeDetails(int position) {
         StringBuilder builder = new StringBuilder();
@@ -56,11 +56,17 @@ public class GallleryItem {
         private String mId;
         private String mUrl;
 
-        public GalleryItem(String mCaption, String mId, String mUrl) {
+     /*   public GalleryItem(String valueOf, String s, String makeDetails) {
             this.mCaption = mCaption;
             this.mId = mId;
             this.mUrl = mUrl;
-        }
+        }*/
+
+       /* public GalleryItem(String mCaption, String mId, String mUrl) {
+            this.mCaption = mCaption;
+            this.mId = mId;
+            this.mUrl = mUrl;
+        }*/
 
         @Override
         public String toString() {

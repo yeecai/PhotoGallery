@@ -71,7 +71,7 @@ public class FlickrFetchr {
                String url = "https://api.flickr.com/services/rest/?method=flickr.photos.getRecent&api_key=8cf0d1896f61decdfe551b77c4deda82&format=json&nojsoncallback=1";
 
                 String jsonString = getUrlString(url);
-                Log.i(TAG,"Received JSON: " + jsonString);
+             //   Log.i(TAG,"Received JSON: " + jsonString);
                 JSONObject jsonBody = new JSONObject(jsonString);
                 parseItems(items, jsonBody);
             } catch (IOException e) {
@@ -80,6 +80,7 @@ public class FlickrFetchr {
                 Log.e(TAG, "Failed to parse JSON", e);
             }
 
+           // Log.d(TAG,items.toString());
             return items;
     }
 
@@ -90,15 +91,15 @@ public class FlickrFetchr {
         for (int i = 0; i < photoJsonArray.length(); i++) {
             JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
 
-            GallleryItem.GalleryItem item = new GallleryItem.GalleryItem(null,null,null);
+            GallleryItem.GalleryItem item = new GallleryItem.GalleryItem();
             item.setmId(photoJsonObject.getString("id"));
             item.setmCaption(photoJsonObject.getString("title"));
 
-            if (!photoJsonObject.has("url_s")) {
+            /*if (!photoJsonObject.has("url_s")) {
                 continue;
-            }
-
-            item.setmUrl(photoJsonObject.getString("url_s"));
+            }*/
+            Log.d(TAG,item.toString());
+          //  item.setmUrl(photoJsonObject.getString("url_s"));
             items.add(item);
         }
     }

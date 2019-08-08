@@ -117,12 +117,14 @@ public class PhotoGalleryFragment extends Fragment {
             }*/
 
             return new FlickrFetchr().fetchItems();
+
         }
 
         @Override
         protected void onPostExecute(List<GallleryItem.GalleryItem> items) {
             mItems = items;
           //  mAdapter.updateData(items);
+            Log.d(TAG,items.toString());
             mAdapter = new PhotoGalleryFragmentRecyclerViewAdapter(mItems, mListener);
             recyclerView.setAdapter(mAdapter);
         }
