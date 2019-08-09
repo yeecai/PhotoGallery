@@ -19,6 +19,8 @@ public class ThumbnailDownloader<T> extends HandlerThread {
 
     private Handler mRequestHandler;
 
+
+
     public void setmThumbnailDownloadListener(ThumbnailDownloadListener<T> mThumbnailDownloadListener) {
         this.mThumbnailDownloadListener = mThumbnailDownloadListener;
     }
@@ -61,8 +63,14 @@ public class ThumbnailDownloader<T> extends HandlerThread {
     private void handleRequest(T target) throws IOException {
         final String url = mRequestMap.get(target);
         byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
+        // cache it as long as it's downloaded
+
         final Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0 ,bitmapBytes.length);
-        Log.i(TAG, "bitmap created");
+
+       // synchronized (bitmapCache) {
+
+       // }
+        Log.i(TAG, "bitmap created ");
 
         /* A callback trigger bindDrawable() in PhotoGalleryFragment.onCreate()*/
         mResponseHandler.post(new Runnable() {

@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import android.os.Handler;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,12 +40,21 @@ public class PhotoGalleryFragment extends Fragment {
 
     private static final String TAG = "PhotoGalleryFragment";
 
+    private  int cacheSize = 4 * 1024 * 1024; // 4MiB
+
+    LruCache<String, Bitmap> bitmapCache = new LruCache<String, Bitmap>(cacheSize) {
+        protected int sizeOf(String key, Bitmap value) {
+            return value.getByteCount();
+        }
+    };
+
     private List<GallleryItem.GalleryItem> mItems = new ArrayList<>();
 
     RecyclerView recyclerView;
     View view;
     private PhotoGalleryRVAdapter mAdapter;
     private ThumbnailDownloader<PhotoGalleryRVAdapter.PhotoHolder> mThumbnailDownloader;
+    private Bitmap cachedPic;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -80,6 +90,10 @@ public class PhotoGalleryFragment extends Fragment {
                 new ThumbnailDownloader.ThumbnailDownloadListener<PhotoGalleryRVAdapter.PhotoHolder>() {
                     @Override
                     public void onThumbnailDownloaded(PhotoGalleryRVAdapter.PhotoHolder photoHolder, Bitmap thumbnail) {
+                        String url = photoHolder.mItem.getmUrl();
+                        if (bitmapCache.get(url) == null) {
+                            bitmapCache.put(url, thumbnail);
+                        }
                         Drawable drawable = new BitmapDrawable(getResources(), thumbnail);
                         photoHolder.bindDrawable(drawable);
                     }
@@ -107,7 +121,7 @@ public class PhotoGalleryFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-         //   Drawable placeholder = getResources().getDrawable(R.drawable.gizmo); //? why won't work in adapter
+
             mAdapter = new PhotoGalleryRVAdapter(GallleryItem.ITEMS);
             recyclerView.setAdapter(mAdapter);
         }
@@ -144,7 +158,7 @@ public class PhotoGalleryFragment extends Fragment {
         public PhotoGalleryRVAdapter(List<GallleryItem.GalleryItem> items) {
             mValues = items;
         }
-        Drawable placeholder = getResources().getDrawable(R.drawable.gizmo);
+        Drawable placeholder;
 
         @Override
         public PhotoHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -163,14 +177,26 @@ public class PhotoGalleryFragment extends Fragment {
             holder.mItem = mValues.get(position);
 
             // holder.mIdView.setText(mValues.get(position).getmId());
-            holder.mContentView.setText(mValues.get(position).getmCaption());
 
-            // TODO download a picture to replay the default
 
+            //  download a picture to replay the default
+            // TODO use lruchace to cache the images
+            // if()
+            cachedPic = bitmapCache.get(holder.mItem.getmUrl());
+            if(cachedPic==null) {
+                holder.mContentView.setText(mValues.get(position).getmCaption());
+                placeholder = getResources().getDrawable(R.drawable.ic_launcher_background);
+                mThumbnailDownloader.queueThumbnail(holder, holder.mItem.getmUrl());
+            }else{
+                holder.mContentView.setText("cached");
+                Drawable drawable = new BitmapDrawable(getResources(), cachedPic);
+                Log.d(TAG, "onBindViewHolder: cached");
+                placeholder = drawable;
+            }
             holder.mItemImageView.setImageDrawable(placeholder);
             holder.bindDrawable(placeholder);
 
-            mThumbnailDownloader.queueThumbnail(holder, holder.mItem.getmUrl());
+
 
         }
 
