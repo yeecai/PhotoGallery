@@ -3,6 +3,7 @@ package com.example.photogallery;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -12,9 +13,13 @@ import android.os.Handler;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -56,6 +61,7 @@ public class PhotoGalleryFragment extends Fragment {
     private ThumbnailDownloader<PhotoGalleryRVAdapter.PhotoHolder> mThumbnailDownloader;
     private Bitmap cachedPic;
 
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -82,7 +88,9 @@ public class PhotoGalleryFragment extends Fragment {
         }
 
         setRetainInstance(true);
-        new FetchItemsTask().execute();
+        setHasOptionsMenu(true);
+        //new FetchItemsTask().execute();
+        updateItems();
 
         Handler responseHandler = new Handler();
         mThumbnailDownloader = new ThumbnailDownloader<>(responseHandler);
@@ -135,6 +143,32 @@ public class PhotoGalleryFragment extends Fragment {
         Log.i(TAG, "Background thread destroyed");
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+        super.onCreateOptionsMenu(menu, menuInflater);
+        menuInflater.inflate(R.menu.menu_photo_gallery, menu);
+        
+        MenuItem searchItem = menu.findItem(R.id.menu_item_search);
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                Log.d(TAG, "QueryTextSubmit: " + s);
+                updateItems();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                Log.d(TAG, "QueryTextChange: " + s);
+                return false;
+            }
+        });
+    }
+    private void updateItems() {
+        new FetchItemsTask().execute();
+    }
 
     private class FetchItemsTask extends AsyncTask<Void, Void, List<GallleryItem.GalleryItem>> {
         @Override
@@ -154,6 +188,7 @@ public class PhotoGalleryFragment extends Fragment {
 
         private final List<GallleryItem.GalleryItem> mValues;
         private final String TAG = "rv";
+        private SearchView searchView;
 
         public PhotoGalleryRVAdapter(List<GallleryItem.GalleryItem> items) {
             mValues = items;
@@ -170,7 +205,11 @@ public class PhotoGalleryFragment extends Fragment {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.gallery_item, parent, false);
             return new PhotoHolder(view);
+
+
+
         }
+
 
         @Override
         public void onBindViewHolder(final PhotoHolder holder, int position) {
@@ -184,7 +223,7 @@ public class PhotoGalleryFragment extends Fragment {
             // if()
             cachedPic = bitmapCache.get(holder.mItem.getmUrl());
             if(cachedPic==null) {
-                holder.mContentView.setText(mValues.get(position).getmCaption());
+              //  holder.mContentView.setText(mValues.get(position).getmCaption());
                 placeholder = getResources().getDrawable(R.drawable.ic_launcher_background);
                 mThumbnailDownloader.queueThumbnail(holder, holder.mItem.getmUrl());
             }else{
