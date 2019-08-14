@@ -10,7 +10,8 @@
     <item android:id="@+id/menu_item_clear"
         android:title="@string/clear_search"
         app:showAsAction="never" />
-    <item android:id="@+id/a_randown_item"
-        app:showAsAction="never"
-        android:title="ok"/>
+
+    <item android:id="@+id/menu_item_toggle_polling"
+          android:title="@string/start_polling"
+        app:showAsAction="ifRoom"/>
 </menu>
