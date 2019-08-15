@@ -2,21 +2,33 @@ package com.example.photogallery;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.os.SystemClock;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
 
 import com.example.photogallery.Model.GallleryItem;
 
 import java.util.List;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 public class PollService extends IntentService {
+    private NotificationManager notificationManager;
+
 
     private static final String TAG = "PollService";
-    private static final int POLL_INTERVAL = 1000*10;
+
+    private static int POLL_INTERVAL = 1000 * 60;
+
+   // private static long POLL_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 
     public static Intent newIntent(Context context) {
         return new Intent(context, PollService.class);
@@ -54,7 +66,42 @@ public class PollService extends IntentService {
             Log.i(TAG,"New photos!"+ resultId);
         }
 
+        Resources resources = getResources();
+        Intent i = PhotoGalleryActivity.newIntent(this);
+        PendingIntent pi = PendingIntent.getActivity(this,0,i,0);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+        mBuilder = new NotificationCompat.Builder(this)
+                .setTicker(resources.getString(R.string.new_pictures_title))
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentText(resources.getString(R.string.new_pictures_text))
+                .setContentTitle(resources.getString(R.string.new_pictures_title))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setDefaults(NotificationCompat.DEFAULT_SOUND);
+
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationChannel channelId;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            channelId = new NotificationChannel("1234567", "Notifaction with channelId", NotificationManager.IMPORTANCE_LOW);
+            notificationManager.createNotificationChannel(channelId);
+            mBuilder.setChannelId("1234567");
+        }
+
+        notificationManager.notify(1, mBuilder.build());
+        Log.i(TAG,"notify now!");
+
+
+
+
+       /* notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NewMessageNotification newMessageNotification = new NewMessageNotification(this, notificationManager);
+
+        synchronized (newMessageNotification) {
+            Log.i(TAG, "notify");
+            newMessageNotification.notify();
+        }
         QueryPreferences.setLastResultId(this, resultId);
+*/
     }
 
 
