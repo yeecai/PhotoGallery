@@ -1,7 +1,9 @@
 package com.example.photogallery;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -18,10 +21,11 @@ import com.example.photogallery.Model.GallleryItem;
 
 import java.util.List;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 public class PollService extends IntentService {
-    private NotificationManager notificationManager;
+    public static final String PREM_PRIVATE = "com.example.photogallery.PRIVATE" ;
+    public static final String NOTIFICATION = "NOTIFICATION";
+    public static final String REQUEST_CODE = "REQUEST_CODE";
+    public NotificationManager notificationManager;
 
 
     private static final String TAG = "PollService";
@@ -30,7 +34,7 @@ public class PollService extends IntentService {
 
    // private static long POLL_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 
-    public static final String ACTION_SHOW_NOTIFICATION = "com.example.photogallery";
+    public static final String ACTION_SHOW_NOTIFICATION = "com.example.photogallery.S​H​O​W​_​N​O​T​I​F​I​C​A​T​I​O​N";
 
     public static Intent newIntent(Context context) {
         return new Intent(context, PollService.class);
@@ -44,7 +48,6 @@ public class PollService extends IntentService {
        if(!i​s​N​e​t​w​o​r​k​A​v​a​i​l​a​b​l​e​A​n​d​C​o​n​n​e​c​t​e​d​()){
            return;
        }
-//        Log.i(TAG, "Received an intent"+ intent);
 
        String query = QueryPreferences.getStoredQuery(this);
        String lastResultId = QueryPreferences.getLastResultId(this);
@@ -78,7 +81,6 @@ public class PollService extends IntentService {
                     .setContentTitle(resources.getString(R.string.new_pictures_title))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setDefaults(NotificationCompat.DEFAULT_SOUND);
-
             notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             NotificationChannel channelId;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -87,26 +89,26 @@ public class PollService extends IntentService {
                 mBuilder.setChannelId("1234567");
             }
 
-            notificationManager.notify(1, mBuilder.build());
-           // Log.i(TAG,"notify now!");
+            Notification notifcation = mBuilder.build();
 
-            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION));
+           // notificationManager.notify(1, mBuilder.build());
+
+            //sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), PREM_PRIVATE);
+            showBackgroundNotification(0, notifcation);
+
+            Log.i(TAG,"notify now!");
         }
 
 
-
-
-
-
-       /* notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        NewMessageNotification newMessageNotification = new NewMessageNotification(this, notificationManager);
-
-        synchronized (newMessageNotification) {
-            Log.i(TAG, "notify");
-            newMessageNotification.notify();
-        }
         QueryPreferences.setLastResultId(this, resultId);
-*/
+
+    }
+
+    private void showBackgroundNotification(int requestCode, Notification notification) {
+        Intent i = new Intent(ACTION_SHOW_NOTIFICATION);
+        i.putExtra(REQUEST_CODE, requestCode);
+        i.putExtra(NOTIFICATION, notification);
+        sendOrderedBroadcast(i, PREM_PRIVATE, null, null, Activity.RESULT_OK, null, null);
     }
 
 
