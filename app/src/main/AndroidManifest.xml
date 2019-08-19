@@ -40,6 +40,9 @@
                 <action android:name="com.example.photogallery.S​H​O​W​_​N​O​T​I​F​I​C​A​T​I​O​N"/>
             </intent-filter>
         </receiver>
+
+        <activity android:name=".PhotoPageActivity" />
+
     </application>
 
 

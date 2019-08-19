@@ -19,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -61,6 +62,7 @@ public class PhotoGalleryFragment extends VisibleFragment {
     private PhotoGalleryRVAdapter mAdapter;
     private ThumbnailDownloader<PhotoHolder> mThumbnailDownloader;
     private Bitmap cachedPic;
+    private WebView mWebView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -78,6 +80,7 @@ public class PhotoGalleryFragment extends VisibleFragment {
         fragment.setArguments(args);
         return fragment;
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -123,6 +126,7 @@ public class PhotoGalleryFragment extends VisibleFragment {
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_photo_gallery, container, false);
+
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -314,7 +318,9 @@ public class PhotoGalleryFragment extends VisibleFragment {
 
         @Override
         public void onClick(View v) {
-            Intent i = new Intent(Intent.ACTION_VIEW, mItem.getPhotoPageUri());
+           // Intent i = new Intent(Intent.ACTION_VIEW, mItem.getPhotoPageUri());
+            Intent i = PhotoPageActivity
+                    .newIntent(getActivity(), mItem.getPhotoPageUri());
             startActivity(i);
         }
     }
