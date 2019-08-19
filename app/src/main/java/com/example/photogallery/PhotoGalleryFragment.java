@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -22,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,9 +38,9 @@ import java.util.List;
 
 public class PhotoGalleryFragment extends VisibleFragment {
 
-    // TODO: Customize parameter argument names
+    //  Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
+    //  Customize parameters
     private int mColumnCount = 1;
 
     private static final String TAG = "PhotoGalleryFragment";
@@ -57,8 +57,9 @@ public class PhotoGalleryFragment extends VisibleFragment {
 
     RecyclerView recyclerView;
     View view;
+
     private PhotoGalleryRVAdapter mAdapter;
-    private ThumbnailDownloader<PhotoGalleryRVAdapter.PhotoHolder> mThumbnailDownloader;
+    private ThumbnailDownloader<PhotoHolder> mThumbnailDownloader;
     private Bitmap cachedPic;
 
     /**
@@ -68,7 +69,7 @@ public class PhotoGalleryFragment extends VisibleFragment {
     public PhotoGalleryFragment() {
     }
 
-    // TODO: Customize parameter initialization
+    // Customize parameter initialization
     @SuppressWarnings("unused")
     public static PhotoGalleryFragment newInstance(int columnCount) {
         PhotoGalleryFragment fragment = new PhotoGalleryFragment();
@@ -97,11 +98,11 @@ public class PhotoGalleryFragment extends VisibleFragment {
         PollService.setServiceAlarm(getActivity(), true);
 
         Handler responseHandler = new Handler();
-        mThumbnailDownloader = new ThumbnailDownloader<>(responseHandler);
+        mThumbnailDownloader = new ThumbnailDownloader<PhotoHolder>(responseHandler);
         mThumbnailDownloader.setmThumbnailDownloadListener(
-                new ThumbnailDownloader.ThumbnailDownloadListener<PhotoGalleryRVAdapter.PhotoHolder>() {
+                new ThumbnailDownloader.ThumbnailDownloadListener<PhotoHolder>() {
                     @Override
-                    public void onThumbnailDownloaded(PhotoGalleryRVAdapter.PhotoHolder photoHolder, Bitmap thumbnail) {
+                    public void onThumbnailDownloaded(PhotoHolder photoHolder, Bitmap thumbnail) {
                         String url = photoHolder.mItem.getmUrl();
                         if (bitmapCache.get(url) == null) {
                             bitmapCache.put(url, thumbnail);
@@ -233,7 +234,7 @@ public class PhotoGalleryFragment extends VisibleFragment {
         }
     }
 
-    private class PhotoGalleryRVAdapter extends RecyclerView.Adapter<PhotoGalleryRVAdapter.PhotoHolder> {
+    private class PhotoGalleryRVAdapter extends RecyclerView.Adapter<PhotoHolder>{
 
         private final List<GallleryItem.GalleryItem> mValues;
         private final String TAG = "rv";
@@ -247,32 +248,21 @@ public class PhotoGalleryFragment extends VisibleFragment {
         @Override
         public PhotoHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        /*LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View view = inflater.inflate(R.layout.gallery_item, viewGroup, false);*/
 
             //getActivity() or getContext()
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.gallery_item, parent, false);
             return new PhotoHolder(view);
-
-
-
         }
 
 
         @Override
         public void onBindViewHolder(final PhotoHolder holder, int position) {
             holder.mItem = mValues.get(position);
+            holder.bindGalleryItem(holder.mItem);
 
-            // holder.mIdView.setText(mValues.get(position).getmId());
-
-
-            //  download a picture to replay the default
-            // TODO use lruchace to cache the images
-            // if()
             cachedPic = bitmapCache.get(holder.mItem.getmUrl());
             if(cachedPic==null) {
-              //  holder.mContentView.setText(mValues.get(position).getmCaption());
                 placeholder = getResources().getDrawable(R.drawable.ic_launcher_background);
                 mThumbnailDownloader.queueThumbnail(holder, holder.mItem.getmUrl());
             }else{
@@ -283,9 +273,6 @@ public class PhotoGalleryFragment extends VisibleFragment {
             }
             holder.mItemImageView.setImageDrawable(placeholder);
             holder.bindDrawable(placeholder);
-
-
-
         }
 
 
@@ -294,37 +281,41 @@ public class PhotoGalleryFragment extends VisibleFragment {
             return mValues.size();
         }
 
+    }
 
-        public class PhotoHolder extends RecyclerView.ViewHolder {
-            public final View mView;
-            // public final TextView mIdView;
-            private final ImageView mItemImageView;
-            public final TextView mContentView;
+    public class PhotoHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        public final View mView;
+        private final ImageView mItemImageView;
+        public final TextView mContentView;
+        public GallleryItem.GalleryItem mItem;
 
-            public GallleryItem.GalleryItem mItem;
+        public PhotoHolder(View view) {
+            super(view);
+            mView = view;
 
-            public PhotoHolder(View view) {
-                super(view);
-                mView = view;
-                //  mIdView = (TextView) view.findViewById(R.id.item_number);
-                mItemImageView = (ImageView) itemView.findViewById(R.id.item_image_view);
-                mContentView = (TextView) view.findViewById(R.id.content);
-            }
-
-            // Do we need to bind them manually?
-            public void bindDrawable(Drawable drawable) {
-                mItemImageView.setImageDrawable(drawable);
-            }
-
-            public void bindGalleryItem(GallleryItem.GalleryItem galleryItem) {
-                mItem = galleryItem;
-            }
-
-            @Override
-            public String toString() {
-                return super.toString() + " '" + mContentView.getText() + "'";
-            }
+            mItemImageView = (ImageView) itemView.findViewById(R.id.item_image_view);
+            mContentView = (TextView) view.findViewById(R.id.content);
+            mView.setOnClickListener(this);
         }
 
+        // Do we need to bind them manually?
+        public void bindDrawable(Drawable drawable) {
+            mItemImageView.setImageDrawable(drawable);
+        }
+
+        public void bindGalleryItem(GallleryItem.GalleryItem galleryItem) {
+            mItem = galleryItem;
+        }
+
+        @Override
+        public String toString() {
+            return super.toString() + " '" + mContentView.getText() + "'";
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent i = new Intent(Intent.ACTION_VIEW, mItem.getPhotoPageUri());
+            startActivity(i);
+        }
     }
 }

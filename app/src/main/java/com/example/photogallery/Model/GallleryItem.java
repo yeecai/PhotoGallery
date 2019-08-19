@@ -1,5 +1,7 @@
 package com.example.photogallery.Model;
 
+import android.net.Uri;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.Map;
  * TODO: Replace all uses of this class before publishing your app.
  */
 public class GallleryItem {
+
+
 
     /**
      * An array of sample (Model) items.
@@ -55,6 +59,7 @@ public class GallleryItem {
         private String mCaption;
         private String mId;
         private String mUrl;
+        private String mOwner;
 
      /*   public GalleryItem(String valueOf, String s, String makeDetails) {
             this.mCaption = mCaption;
@@ -95,6 +100,26 @@ public class GallleryItem {
 
         public void setmUrl(String mUrl) {
             this.mUrl = mUrl;
+        }
+
+        public String getmOwner() {
+            return mOwner;
+        }
+
+        public void setmOwner(String mOwner) {
+            this.mOwner = mOwner;
+        }
+
+        public Uri getPhotoPageUri() {
+            String PHOTOPOINT = "https://www.flickr.com/photos/";
+            return Uri.parse(PHOTOPOINT)
+                    .buildUpon()
+                    .appendPath(mOwner)
+                    .appendPath(mId)
+                    .build();
+
+    //    return "https://www.flickr.com/photos/147421450@N06/48573169091";
+
         }
     }
 }

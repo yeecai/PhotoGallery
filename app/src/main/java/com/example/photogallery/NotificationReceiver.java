@@ -18,7 +18,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class NotificationReceiver extends BroadcastReceiver{
     private static final String TAG = "NotificationReceiver" ;
     // public NotificationManager notificationManager;
-    
+
     @Override
     public void onReceive(Context context, Intent intent) {
       //  Log.i(TAG, "received result: " + getResultCode());
