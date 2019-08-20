@@ -41,7 +41,8 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".PhotoPageActivity" />
+        <activity android:name=".PhotoPageActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
 
     </application>
 

@@ -59,6 +59,7 @@ public class PhotoGalleryFragment extends VisibleFragment {
     RecyclerView recyclerView;
     View view;
 
+
     private PhotoGalleryRVAdapter mAdapter;
     private ThumbnailDownloader<PhotoHolder> mThumbnailDownloader;
     private Bitmap cachedPic;
@@ -133,6 +134,11 @@ public class PhotoGalleryFragment extends VisibleFragment {
             Context context = view.getContext();
 
             recyclerView = (RecyclerView) view;
+
+          //  recyclerView.setHasFixedSize(true);
+           // recyclerView.setItemViewCacheSize(40);
+          //  recyclerView.setDrawingCacheEnabled(true);
+
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
@@ -324,4 +330,6 @@ public class PhotoGalleryFragment extends VisibleFragment {
             startActivity(i);
         }
     }
+
+
 }

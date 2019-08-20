@@ -18,4 +18,11 @@ public class PhotoPageActivity extends SingleFragmentActivity{
     protected Fragment createFragment() {
         return PhotoPageFragment.newInstance(getIntent().getData());
     }
+
+    @Override public void onBackPressed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (!(fragment instanceof IOnBackPressed) || !((IOnBackPressed) fragment).onBackPressed()) {
+            super.onBackPressed();
+        }
+    }
 }
